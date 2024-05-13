@@ -18,13 +18,13 @@ class _NewItemState extends State<NewItem> {
   var enteredName = '';
   var enteredQuantity = 1;
   var selectedCategory = categories[Categories.vegetables]!;
-  void saveItem() {
+  void saveItem() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
 
       final url = Uri.https('shopping-list-a2ff1-default-rtdb.firebaseio.com',
           'shoppinh-list.json');
-      http.post(
+      final response = await http.post(
         url,
         headers: {
           'content-type': 'application/json',
