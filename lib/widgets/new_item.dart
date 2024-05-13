@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:shopping_list/models/category.dart';
 import 'package:shopping_list/models/grocery_item.dart';
 
@@ -19,11 +21,29 @@ class _NewItemState extends State<NewItem> {
   void saveItem() {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-      Navigator.of(context).pop(GroceryItem(
-          id: DateTime.now().toString(),
-          name: enteredName,
-          quantity: enteredQuantity,
-          category: selectedCategory));
+
+      final url = Uri.https('shopping-list-a2ff1-default-rtdb.firebaseio.com',
+          'shoppinh-list.json');
+      http.post(
+        url,
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'name': enteredName,
+            'quantity': enteredQuantity,
+            'category': selectedCategory.title,
+          },
+        ),
+      );
+
+      // Locally storin the data.
+      // Navigator.of(context).pop(GroceryItem(
+      //     id: DateTime.now().toString(),
+      //     name: enteredName,
+      //     quantity: enteredQuantity,
+      //     category: selectedCategory));
     }
   }
 
