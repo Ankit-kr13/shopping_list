@@ -18,9 +18,13 @@ class _NewItemState extends State<NewItem> {
   var enteredName = '';
   var enteredQuantity = 1;
   var selectedCategory = categories[Categories.vegetables]!;
+  var isSending = false;
   void saveItem() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
+      setState(() {
+        isSending = true;
+      });
 
       final url = Uri.https('shopping-list-a2ff1-default-rtdb.firebaseio.com',
           'shoppinh-list.json');
@@ -36,6 +40,19 @@ class _NewItemState extends State<NewItem> {
             'category': selectedCategory.title,
           },
         ),
+      );
+
+      final resData = json.decode(response.body);
+
+      // if (!context.mounted) {
+      //   return;
+      // }
+      Navigator.of(context).pop(
+        GroceryItem(
+            id: resData['name'],
+            name: enteredName,
+            quantity: enteredQuantity,
+            category: selectedCategory),
       );
 
       // Locally storin the data.
@@ -147,15 +164,23 @@ class _NewItemState extends State<NewItem> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        formKey.currentState!.reset();
-                      },
+                      onPressed: isSending
+                          ? null
+                          : () {
+                              formKey.currentState!.reset();
+                            },
                       child: const Text('Reset'),
                     ),
                     SizedBox(width: 15),
                     ElevatedButton(
-                      onPressed: saveItem,
-                      child: const Text('Add Item'),
+                      onPressed: isSending ? null : saveItem,
+                      child: isSending
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Text('Add Item'),
                     ),
                   ],
                 ),
